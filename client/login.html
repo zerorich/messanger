@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 flex justify-center items-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 class="text-2xl font-semibold mb-6">Login</h2>
+        <form id="loginForm">
+            <div class="mb-4">
+                <label for="username" class="block text-gray-700">Username</label>
+                <input type="text" id="username" class="w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-gray-700">Password</label>
+                <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md">Login</button>
+        </form>
+
+        <!-- Error message will appear here -->
+        <div id="error-message" class="mt-4 text-red-500 text-center hidden"></div>
+
+        <p class="text-center mt-4">
+            Don't have an account? <a href="register.html" class="text-blue-500">Register here</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            // Get error message container
+            const errorMessage = document.getElementById('error-message');
+
+            if (response.status === 200) {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(result.user));  // Save user info in localStorage
+
+                alert('Login successful');
+                // Redirect to another page if necessary, e.g., to a dashboard
+                window.location.href = './dashboard.html';  // Example redirect
+            } else {
+                // Show error message
+                errorMessage.textContent = result.error || 'Login failed';
+                errorMessage.classList.remove('hidden');  // Show the error message
+            }
+        });
+    </script>
+</body>
+
+</html>

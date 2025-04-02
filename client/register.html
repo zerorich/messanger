@@ -1,0 +1,73 @@
+<!-- register.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 flex justify-center items-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 class="text-2xl font-semibold mb-6">Register</h2>
+        <form id="registerForm">
+            <div class="mb-4">
+                <label for="username" class="block text-gray-700">Username</label>
+                <input type="text" id="username" class="w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-gray-700">Password</label>
+                <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <div class="mb-4">
+                <label for="phone" class="block text-gray-700">Phone</label>
+                <input type="text" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <div class="mb-4">
+                <label for="firstName" class="block text-gray-700">First Name</label>
+                <input type="text" id="firstName" class="w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <div class="mb-4">
+                <label for="lastName" class="block text-gray-700">Last Name</label>
+                <input type="text" id="lastName" class="w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md">Register</button>
+        </form>
+        <p class="text-center mt-4">
+            Already have an account? <a href="login.html" class="text-blue-500">Login here</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const phone = document.getElementById('phone').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            const response = await fetch('http://localhost:3000/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password, phone, firstName, lastName })
+            });
+
+            const result = await response.json();
+
+            if (response.status === 201) {
+                alert('Registration successful');
+                window.location.href = './login.html';  // Redirect to login page after successful registration
+            } else {
+                alert(result.error || 'Registration failed');
+            }
+        });
+    </script>
+</body>
+
+</html>
