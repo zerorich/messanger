@@ -1,5 +1,5 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
+import bcryptjs from 'bcryptjs';
 import User from '../models/User.js';
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.post('/register', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ error: 'Имя пользователя уже занято' });
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcryptjs.hash(password, 10);
         const newUser = new User({ username, password: hashedPassword, phone, firstName, lastName });
         await newUser.save();
         res.status(201).json({ message: 'Регистрация успешна' });
@@ -35,7 +35,7 @@ router.post('/login', async (req, res) => {
         // Сравниваем пароль с хэшированным в базе
         console.log('Найденный пользователь:', user);
         console.log('Пароль пользователя в БД:', user ? user.password : 'Нет пароля');
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ error: 'Неверные учетные данные' });
         }
