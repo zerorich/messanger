@@ -1,4 +1,3 @@
-# Игнорируем папку node_modules
 node_modules/
-# Игнорируем файл .env (содержит секретные данные)
-.env
+/server/.env
+tailwind.config.js
