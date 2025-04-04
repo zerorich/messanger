@@ -52,7 +52,7 @@
       // Функция для получения всех пользователей
       async function fetchUsers() {
         try {
-          const response = await fetch("https://messanger-production.up.railway.appmessanger-production-2a24.up.railway.app/users/all");
+          const response = await fetch("https://messanger-production-2a24.up.railway.app/users/all");
           if (!response.ok) {
             throw new Error("Не удалось получить пользователей");
           }
@@ -118,7 +118,7 @@
       async function fetchMessages(username) {
         try {
           const response = await fetch(
-            `https://messanger-production.up.railway.appmessanger-production-2a24.up.railway.app/messages/${currentUser.username}/${username}`
+            `https://messanger-production-2a24.up.railway.app/messages/${currentUser.username}/${username}`
           );
           if (!response.ok) {
             throw new Error("Не удалось получить сообщения");
@@ -163,7 +163,7 @@
         if (!messageText) return;
 
         try {
-          const response = await fetch("https://messanger-production.up.railway.appmessanger-production-2a24.up.railway.app/messages/", {
+          const response = await fetch("https://messanger-production-2a24.up.railway.app/messages/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
