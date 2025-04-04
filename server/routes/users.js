@@ -3,6 +3,16 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
+// Получить всех пользователей (имя, фамилия, юзернейм)
+router.get('/all', async (req, res) => {
+    try {
+        const users = await User.find({}, 'firstName lastName username');
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: 'Ошибка при получении пользователей' });
+    }
+});
+
 // Получение данных о пользователе по username
 router.get('/:username', async (req, res) => {
     const { username } = req.params;
@@ -21,26 +31,6 @@ router.get('/:username', async (req, res) => {
         res.status(500).json({ error: 'Ошибка получения данных о пользователе' });
     }
 });
-// Получить всех пользователей (имя, фамилия, юзернейм)
-router.get('/all', async (req, res) => {
-    try {
-        const users = await User.find({}, 'firstName lastName username');
-        res.json(users);
-    } catch (err) {
-        res.status(500).json({ error: 'Ошибка при получении пользователей' });
-    }
-});
-
-// Добавить новый маршрут для получения всех чатов
-// Пример для получения чатов пользователей (если есть такая логика на сервере)
-// router.get('/chats', async (req, res) => {
-//     try {
-//         const chats = await Chat.find({}); // Допустим, Chat - это модель для чатов
-//         res.json(chats);
-//     } catch (err) {
-//         res.status(500).json({ error: 'Не удалось получить чаты' });
-//     }
-// });
 
 // Обновление данных пользователя
 router.put('/:username', async (req, res) => {

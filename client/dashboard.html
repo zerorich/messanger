@@ -1,157 +1,162 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
 </head>
-
 <body class="bg-gray-100">
-    <div class="flex h-screen">
-        <!-- Users list -->
-        <div id="users-list" class="w-[400px] bg-white p-4 overflow-auto h-screen"></div>
-
-        <!-- Chat container -->
-        <div id="chat-container" class="hidden w-full p-4 bg-gray-50 h-screen">
-            <div id="chat-title" class="text-xl font-semibold mb-4"></div>
-            <div id="messages" class="mb-4"></div>
-            <textarea id="message-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Type a message..."></textarea>
-            <button id="send-message" class="bg-blue-500 text-white px-4 py-2 mt-2 rounded-md hover:bg-blue-600">Send</button>
-        </div>
+  <div class="flex h-screen">
+    <!-- Users list -->
+    <div id="users-list" class="bg-white p-4 overflow-auto h-screen flex flex-col gap-4" style="width: 400px;"></div>
+    <!-- Chat container -->
+    <div id="chat-container" class="hidden flex-1 p-4 bg-gray-50 h-screen">
+      <div id="chat-title" class="text-xl font-semibold mb-4"></div>
+      <div id="messages" class="mb-4 flex flex-col gap-4"></div>
+      <textarea id="message-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Type a message..."></textarea>
+      <button id="send-message" class="bg-blue-500 text-white px-4 py-2 mt-2 rounded-md hover:bg-blue-600">Send</button>
     </div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const usersList = document.getElementById('users-list');
-            const chatContainer = document.getElementById('chat-container');
-            const chatTitle = document.getElementById('chat-title');
-            const messagesContainer = document.getElementById('messages');
-            const messageInput = document.getElementById('message-input');
-            const sendMessageButton = document.getElementById('send-message');
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const usersList = document.getElementById('users-list');
+      const chatContainer = document.getElementById('chat-container');
+      const chatTitle = document.getElementById('chat-title');
+      const messagesContainer = document.getElementById('messages');
+      const messageInput = document.getElementById('message-input');
+      const sendMessageButton = document.getElementById('send-message');
 
-            let currentChatUser = null;
+      let currentChatUser = null;
 
-            // Загружаем данные из localStorage
-            const currentUser = JSON.parse(localStorage.getItem('user'));
+      // Загружаем данные из localStorage
+      const currentUser = JSON.parse(localStorage.getItem('user'));
 
-            if (!currentUser) {
-                window.location.href = './login.html'; // Если пользователь не залогинен, перенаправляем на страницу логина
-            }
+      if (!currentUser) {
+        window.location.href = './login.html'; // Если пользователь не залогинен, перенаправляем на страницу логина
+      }
 
-            // Функция для получения всех пользователей
-            async function fetchUsers() {
-                try {
-                    const response = await fetch('http://localhost:3000/users/all');
-                    if (!response.ok) {
-                        throw new Error('Не удалось получить пользователей');
-                    }
-                    const users = await response.json();
-                    displayUsers(users);
-                } catch (err) {
-                    console.error(err);
-                    alert('Ошибка при загрузке пользователей');
-                }
-            }
+      // Функция для получения всех пользователей
+      async function fetchUsers() {
+        try {
+          const response = await fetch('http://localhost:3000/users/all');
+          if (!response.ok) {
+            throw new Error('Не удалось получить пользователей');
+          }
+          const users = await response.json();
+          displayUsers(users);
+        } catch (err) {
+          console.error(err);
+          alert('Ошибка при загрузке пользователей');
+        }
+      }
 
-            // Функция для отображения списка пользователей
-            function displayUsers(users) {
-                usersList.innerHTML = ''; // Очистить предыдущий список
+      // Функция для отображения списка пользователей, исключая текущего
+      function displayUsers(users) {
+        usersList.innerHTML = ''; // Очистить предыдущий список
 
-                users.forEach(user => {
-                    const userElement = document.createElement('div');
-                    userElement.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-md', 'flex', 'justify-between', 'items-center');
+        users.forEach(user => {
+          // Если имя пользователя совпадает с текущим, пропускаем его
+          if (user.username === currentUser.username) return;
 
-                    const userInfo = document.createElement('div');
-                    userInfo.innerHTML = `
-                        <p class="font-semibold">${user.firstName} ${user.lastName}</p>
-                        <p class="text-sm text-gray-500">${user.username}</p>
-                    `;
+          const userElement = document.createElement('div');
+          userElement.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-md', 'flex', 'justify-between', 'items-center');
 
-                    const chatButton = document.createElement('button');
-                    chatButton.classList.add('bg-blue-500', 'text-white', 'px-4', 'py-2', 'rounded-lg', 'hover:bg-blue-600');
-                    chatButton.textContent = 'Начать чат';
-                    chatButton.addEventListener('click', () => {
-                        openChat(user.username);
-                    });
+          const userInfo = document.createElement('div');
+          userInfo.innerHTML = `
+            <p class="font-semibold">${user.firstName} ${user.lastName}</p>
+            <p class="text-sm text-gray-500">${user.username}</p>
+          `;
 
-                    userElement.appendChild(userInfo);
-                    userElement.appendChild(chatButton);
-                    usersList.appendChild(userElement);
-                });
-            }
+          const chatButton = document.createElement('button');
+          chatButton.classList.add('bg-blue-500', 'text-white', 'px-4', 'py-2', 'rounded-lg', 'hover:bg-blue-600');
+          chatButton.textContent = 'Начать чат';
+          chatButton.addEventListener('click', () => {
+            openChat(user.username);
+          });
 
-            // Функция для открытия чата с выбранным пользователем
-            async function openChat(username) {
-                currentChatUser = username;
-                chatContainer.classList.remove('hidden');
-                chatTitle.textContent = `Чат с ${username}`;
-                await fetchMessages(username);
-            }
-
-            // Функция для получения сообщений с выбранным пользователем
-            async function fetchMessages(username) {
-                try {
-                    const response = await fetch(`http://localhost:3000/messages/${username}`);
-                    if (!response.ok) {
-                        throw new Error('Не удалось получить сообщения');
-                    }
-                    const messages = await response.json();
-                    displayMessages(messages);
-                } catch (err) {
-                    console.error(err);
-                    alert('Ошибка загрузки сообщений');
-                }
-            }
-
-            // Функция для отображения сообщений
-            function displayMessages(messages) {
-                messagesContainer.innerHTML = ''; // Очистить предыдущие сообщения
-
-                messages.forEach(msg => {
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('p-4', 'bg-white', 'rounded-lg', 'shadow-md', 'mb-4');
-                    messageElement.textContent = msg.text;
-                    messagesContainer.appendChild(messageElement);
-                });
-            }
-
-            // Функция для отправки сообщения
-            async function sendMessage() {
-                const messageText = messageInput.value.trim();
-                if (!messageText) return;
-
-                try {
-                    const response = await fetch('http://localhost:3000/messages/send', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ message: messageText, recipient: currentChatUser })
-                    });
-
-                    if (response.ok) {
-                        // Очистить поле ввода и обновить сообщения
-                        messageInput.value = '';
-                        fetchMessages(currentChatUser);
-                    } else {
-                        alert('Ошибка отправки сообщения');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('Ошибка отправки сообщения');
-                }
-            }
-
-            // Слушаем кнопку отправки
-            sendMessageButton.addEventListener('click', sendMessage);
-
-            // Загружаем пользователей при старте
-            fetchUsers();
+          userElement.appendChild(userInfo);
+          userElement.appendChild(chatButton);
+          usersList.appendChild(userElement);
         });
-    </script>
-</body>
+      }
 
+      // Функция для открытия чата с выбранным пользователем
+      async function openChat(username) {
+        currentChatUser = username;
+        chatContainer.classList.remove('hidden');
+        chatTitle.textContent = `Чат с ${username}`;
+        await fetchMessages(username);
+      }
+
+      // Функция для получения сообщений с выбранным пользователем
+      async function fetchMessages(username) {
+        try {
+          // Передаём текущего пользователя и выбранного собеседника
+          const response = await fetch(`http://localhost:3000/messages/${currentUser.username}/${username}`);
+          if (!response.ok) {
+            throw new Error('Не удалось получить сообщения');
+          }
+          const messages = await response.json();
+          displayMessages(messages);
+        } catch (err) {
+          console.error(err);
+          alert('Ошибка загрузки сообщений');
+        }
+      }
+
+      // Функция для отображения сообщений с разным оформлением для отправителя и получателя
+      function displayMessages(messages) {
+        messagesContainer.innerHTML = ''; // Очистить предыдущие сообщения
+
+        messages.forEach(msg => {
+          const messageElement = document.createElement('div');
+          const isOwnMessage = msg.sender === currentUser.username;
+          // Выравнивание: свои сообщения ml-auto, чужие mr-auto
+          const alignmentClass = isOwnMessage ? 'ml-auto' : 'mr-auto';
+          // Цвет фона: голубой для своих сообщений, зеленый для сообщений собеседника
+          const bgColorClass = isOwnMessage ? 'bg-blue-300' : 'bg-green-300';
+          
+          messageElement.classList.add(alignmentClass, bgColorClass, 'p-4', 'rounded-[12px]', 'shadow-md', 'max-w-[360px]');
+          messageElement.textContent = msg.text;
+          messagesContainer.appendChild(messageElement);
+        });
+      }
+
+      // Функция для отправки сообщения
+      async function sendMessage() {
+        const messageText = messageInput.value.trim();
+        if (!messageText) return;
+
+        try {
+          const response = await fetch('http://localhost:3000/messages/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ sender: currentUser.username, receiver: currentChatUser, text: messageText })
+          });
+
+          if (response.ok) {
+            // Очистить поле ввода и обновить сообщения
+            messageInput.value = '';
+            fetchMessages(currentChatUser);
+          } else {
+            alert('Ошибка отправки сообщения');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Ошибка отправки сообщения');
+        }
+      }
+
+      // Слушаем кнопку отправки
+      sendMessageButton.addEventListener('click', sendMessage);
+
+      // Загружаем пользователей при старте
+      fetchUsers();
+    });
+  </script>
+</body>
 </html>
